@@ -40,6 +40,7 @@ main {
   align-items: center;
   margin: 1rem;
   height: 90%;
+  position: fixed;
 }
 #header_top,
 #header_middle,
@@ -108,13 +109,30 @@ main {
   display: grid;
   grid-gap: 1rem;
   grid-template-columns: repeat(auto-fit, 30%);
-  grid-template-rows: repeat(3, auto-fit);
+}
+@media screen and (max-width: 1080px) {
+  .target_wrapper {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, 40%);
+  }
+}
+@media screen and (max-width: 870px) {
+  .target_wrapper {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, 90%);
+  }
 }
 
 .target_card {
   background-color: white;
   border-radius: 0.625rem;
-  padding: 2rem;
+  padding: 0 1.5rem;
+}
+
+.target_card h2 {
+  color: #009fdf;
 }
 
 .target_title {
@@ -122,14 +140,61 @@ main {
   justify-content: space-between;
   align-items: center;
 }
+.target_add_savings {
+  height: 2rem;
+  width: 2rem;
+  background-image: url("assets/svg/target_add_savings.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: transparent;
+  border: none;
+}
+
 .target_img {
-  width: 6rem;
-  height: 6rem;
+  width: 8rem;
+  height: 8rem;
   object-fit: cover;
   border-radius: 0.625rem;
+  margin-right: 1rem;
 }
 .target_description {
   display: flex;
+  align-items: center;
+}
+.target_info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+.info-title {
+  color: #292929;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 0.1rem;
+  padding: 0;
+}
+.info-value {
+  color: #0a2973;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  margin-top: 0.5rem;
+  padding: 0;
+}
+.target_sum-rest {
+  margin-top: 1.5rem;
+}
+
+.target_progress {
+  font-size: 0.75rem;
+  margin: 1rem 0;
+  font-weight: 700;
+}
+.target_progress p {
+  color: #0a2973;
+}
+.target_progress span {
+  color: #009fdf;
 }
 
 .progress-bar {
@@ -155,13 +220,8 @@ main {
 .inner-finish {
   background-color: #50db3a;
 }
-
-.target_add_savings {
-  height: 2rem;
-  width: 2rem;
-  background-image: url("assets/svg/target_add_savings.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-color: transparent;
-  border: none;
+.progress_bar_text {
+  color: #292929;
+  position: relative;
+  top: 15%;
 }
