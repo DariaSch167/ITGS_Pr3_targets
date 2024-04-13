@@ -1,4 +1,4 @@
-// Класс для карточки цели
+// Класс с методами для создания HTML-карточки цели
 class Target {
   constructor(
     name,
@@ -50,22 +50,16 @@ class Target {
     return this.priority;
   }
   getDueDate() {
-    return (
-      this.dueDate.getDate() +
-      "." +
-      (this.dueDate.getMonth() + 1) +
-      "." +
-      this.dueDate.getFullYear()
-    );
+    const day = ("0" + this.dueDate.getDate()).slice(-2);
+    const month = ("0" + (this.dueDate.getMonth() + 1)).slice(-2);
+    const year = this.dueDate.getFullYear();
+    return day + "." + month + "." + year;
   }
   getStartDate() {
-    return (
-      this.startDate.getDate() +
-      "." +
-      (this.startDate.getMonth() + 1) +
-      "." +
-      this.startDate.getFullYear()
-    );
+    const day = ("0" + this.startDate.getDate()).slice(-2);
+    const month = ("0" + (this.startDate.getMonth() + 1)).slice(-2);
+    const year = this.startDate.getFullYear();
+    return day + "." + month + "." + year;
   }
   getDaysTillTargetEnd() {
     let currentDate = Date.now();
@@ -99,39 +93,24 @@ class Target {
   }
   getProgressNum() {
     let percent = (this.savedSum * 100) / this.totalSum;
-    return Math.ceil(percent);
+    if (percent <= 99) {
+      percent = Math.ceil(percent);
+    } else {
+      percent = Math.floor(percent);
+      // percent = percent.toFixed(2);
+    }
+    return percent;
   }
 }
-
-// Проверочный пример класса и его методов
-let exampleDueDate = new Date("2024-06-13");
-let today = new Date();
-exampleOne = new Target(
-  "Новая машина",
-  "Машина",
-  6000000,
-  "medium",
-  today,
-  exampleDueDate,
-  5000
-);
-console.log(exampleOne.getName());
-console.log(exampleOne.getImg());
-console.log(exampleOne.getTotalSum());
-console.log(exampleOne.getPriority());
-console.log(exampleOne.getDueDate());
-console.log(exampleOne.getStartDate());
-console.log(exampleOne.getDaysTillTargetEnd());
-console.log(exampleOne.getSavedSum());
-console.log(exampleOne.getDifferenceSum());
-console.log(exampleOne.addSavings(80));
-console.log(exampleOne.getSavedSum());
-console.log(exampleOne.getDifferenceSum());
-console.log(exampleOne.getProgressNum());
 
 // Массив с целями из Local storage
 // let targetsListJson = localStorage.getItem("targetsList");
 // let targetsList = targetsListJson ? JSON.parse(targetsListJson) : [];
+
+// Проверочный пример массива объектов
+let exampleDueDate = new Date("2024-06-13");
+let today = new Date();
+
 let targetsList = [
   {
     name: "Новая машина",
@@ -140,7 +119,7 @@ let targetsList = [
     priority: "low",
     startDate: today,
     dueDate: exampleDueDate,
-    savedSum: 500000,
+    savedSum: 500,
   },
   {
     name: "Квартира",
@@ -149,49 +128,61 @@ let targetsList = [
     priority: "high",
     startDate: today,
     dueDate: exampleDueDate,
-    savedSum: 1500000,
+    savedSum: 9000000,
   },
   {
     name: "Курсы фронтенда",
-    category: "Другое",
+    category: "Обучение",
     sum: 100000,
     priority: "medium",
     startDate: today,
     dueDate: exampleDueDate,
-    savedSum: 10000,
+    savedSum: 12000,
+  },
+  {
+    name: "Фарфоровая кукла",
+    category: "Дети",
+    sum: 10000,
+    priority: "medium",
+    startDate: today,
+    dueDate: exampleDueDate,
+    savedSum: 9980,
   },
 ];
 
-// Для отображения целей из Local storage при перезагрузке страницы
+// Для отображения целей из Local storage при загрузке страницы
+// Елементы массива преобразуется в объекты, из них создаются карточки
 document.addEventListener("DOMContentLoaded", () => {
   emptyError.textContent = "";
   if (targetsList.length === 0) {
     emptyError.textContent = "Добавьте первую цель";
   } else {
     targetsList.forEach(function (target) {
-      let target = new Target(
-        targetsList.name,
-        targetsList.category,
-        targetsList.sum,
-        targetsList.priority,
-        targetsList.startDate,
-        targetsList.dueDate,
-        targetsList.savedSum
+      let targetElement = new Target(
+        target.name,
+        target.category,
+        target.sum,
+        target.priority,
+        target.startDate,
+        target.dueDate,
+        target.savedSum
       );
-      createTargetCard(target);
+      createTargetCard(targetElement);
     });
   }
 });
 
-// Создание карточки цели
+// Функция для создания карточек целей
 const targetWrapper = document.querySelector(".target_wrapper");
 const emptyError = document.querySelector(".target_empty-error");
+const targetProgress = document.querySelector(".target_progress");
 
 function createTargetCard(target) {
   const targetCard = document.createElement("div");
   targetCard.classList.add("target_card");
   targetWrapper.append(targetCard);
 
+  // HTML под карточку
   targetCard.innerHTML = `
   <div class="target_title">
   <h2 class="target_name">${target.getName()}</h2>
@@ -201,24 +192,27 @@ function createTargetCard(target) {
   <img class="target_img" src="${target.getImg()}" alt="${target.getCategory()}">
   <div class="target_info">
   <div class="target_due-date">
-  <p>Конец сбора через:</p>
-  <p>${target.getDaysTillTargetEnd()}</p>
+  <p class="info-title">Конец сбора через:</p>
+  <p class="info-value">${target.getDaysTillTargetEnd()}</p>
   </div>
   <div class="target_sum-rest">
-  <p>Осталось собрать:</p>
-  <p>${target.getDifferenceSum()} ₽</p>
+  <p class="info-title">Осталось собрать:</p>
+  <p class="info-value">${target.getDifferenceSum()} ₽</p>
   </div>
   </div>
   </div>
   <div class="target_progress">
-  <p>Прогресс цели ${target.getSavedSum()} ₽ из ${target.getTotalSum()} ₽</p>
+  <p>Прогресс цели: <span>${target.getSavedSum()} ₽ из ${target.getTotalSum()} ₽</span></p>
   <div class="progress-bar">
   <div class="progress-bar-inner"></div>
   </div>
   </div>`;
 
-  const progressBar = document.querySelector(".progress-bar");
-  const progressBarInner = document.querySelector(".progress-bar-inner");
+  // Создание прогресс-бара
+  const progressBar = targetCard.querySelector(".progress-bar");
+  const progressBarInner = targetCard.querySelector(".progress-bar-inner");
+
+  // Определение цвета прогресс-бара
   let progressColor =
     target.getProgressNum() < 19
       ? "inner-start"
@@ -228,15 +222,23 @@ function createTargetCard(target) {
       ? "inner-finish"
       : "";
   progressBarInner.classList.add(progressColor);
-  progressBarInner.style.width = target.getProgressNum() + "%";
+
+  // Решение стилизации маленького значения процента
+  if (target.getProgressNum() > 5) {
+    progressBarInner.style.width = target.getProgressNum() + "%";
+  } else {
+    progressBarInner.style.width = "4%";
+    progressBarInner.style.borderRadius = "0.625rem 0 0 0.625rem";
+  }
+
+  // Определение местоположения значения процента
+  let progressBarText = document.createElement("div");
+  progressBarText.textContent = target.getProgressNum() + "%";
+  progressBarText.classList.add("progress_bar_text");
 
   if (target.getProgressNum() >= 15) {
-    progressBarInner.textContent = target.getProgressNum() + "%";
+    progressBarInner.append(progressBarText);
   } else {
-    const progressBarText = document.createElement("div");
-    progressBarText.textContent = target.getProgressNum() + "%";
     progressBar.append(progressBarText);
   }
 }
-
-createTargetCard(exampleOne);
