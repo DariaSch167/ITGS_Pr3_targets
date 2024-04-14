@@ -16,6 +16,7 @@ class Target {
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.savedSum = savedSum;
+    this.button;
   }
 
   getName() {
@@ -97,9 +98,14 @@ class Target {
       percent = Math.ceil(percent);
     } else {
       percent = Math.floor(percent);
-      // percent = percent.toFixed(2);
     }
     return percent;
+  }
+  setButton(button) {
+    return (this.button = button);
+  }
+  getButton() {
+    return this.button;
   }
 }
 
@@ -108,7 +114,6 @@ class Target {
 // let targetsList = targetsListJson ? JSON.parse(targetsListJson) : [];
 
 // Проверочный пример массива объектов
-let exampleDueDate = new Date("2024-06-13");
 let today = new Date();
 
 let targetsList = [
@@ -116,37 +121,64 @@ let targetsList = [
     name: "Новая машина",
     category: "Машина",
     sum: 6000000,
-    priority: "low",
+    priority: "3",
     startDate: today,
-    dueDate: exampleDueDate,
+    dueDate: new Date("2024-06-13"),
     savedSum: 500,
   },
   {
     name: "Квартира",
     category: "Дом",
     sum: 16000000,
-    priority: "high",
+    priority: "1",
     startDate: today,
-    dueDate: exampleDueDate,
+    dueDate: new Date("2024-06-13"),
     savedSum: 9000000,
   },
   {
-    name: "Курсы фронтенда",
-    category: "Обучение",
+    name: "Полет на шаре",
+    category: "Другое",
     sum: 100000,
-    priority: "medium",
+    priority: "2",
     startDate: today,
-    dueDate: exampleDueDate,
+    dueDate: new Date("2024-09-18"),
     savedSum: 12000,
   },
   {
     name: "Фарфоровая кукла",
     category: "Дети",
     sum: 10000,
-    priority: "medium",
+    priority: "2",
     startDate: today,
-    dueDate: exampleDueDate,
+    dueDate: new Date("2024-05-9"),
     savedSum: 9980,
+  },
+  {
+    name: "Курсы фронтенда",
+    category: "Обучение",
+    sum: 100000,
+    priority: "2",
+    startDate: today,
+    dueDate: new Date("2024-06-13"),
+    savedSum: 12000,
+  },
+  {
+    name: "Мальдивы",
+    category: "Отпуск",
+    sum: 500000,
+    priority: "2",
+    startDate: today,
+    dueDate: new Date("2024-08-18"),
+    savedSum: 300000,
+  },
+  {
+    name: "Компьютер",
+    category: "Техника",
+    sum: 100000,
+    priority: "2",
+    startDate: today,
+    dueDate: new Date("2025-08-18"),
+    savedSum: 18000,
   },
 ];
 
@@ -157,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (targetsList.length === 0) {
     emptyError.textContent = "Добавьте первую цель";
   } else {
+    sortTargetList();
     targetsList.forEach(function (target) {
       let targetElement = new Target(
         target.name,
@@ -168,9 +201,20 @@ document.addEventListener("DOMContentLoaded", () => {
         target.savedSum
       );
       createTargetCard(targetElement);
+      buttonAddSavings(targetElement);
     });
   }
 });
+
+// Сортировка массива для карточек - по приоритету, по дате окончания
+function sortTargetList() {
+  targetsList.sort((target1, target2) =>
+    target1["dueDate"] < target2["dueDate"] ? 1 : -1
+  );
+  targetsList.sort((target1, target2) =>
+    target1["priority"] > target2["priority"] ? 1 : -1
+  );
+}
 
 // Функция для создания карточек целей
 const targetWrapper = document.querySelector(".target_wrapper");
@@ -236,9 +280,54 @@ function createTargetCard(target) {
   progressBarText.textContent = target.getProgressNum() + "%";
   progressBarText.classList.add("progress_bar_text");
 
-  if (target.getProgressNum() >= 15) {
+  if (target.getProgressNum() >= 20) {
     progressBarInner.append(progressBarText);
   } else {
     progressBar.append(progressBarText);
   }
+
+  // Стучимся к кнопкам в карточках
+  target.setButton(targetCard.querySelector(".target_add_savings"));
+}
+
+// Создание модального окна
+const generalWrapper = document.querySelector(".general_wrapper");
+const modalBackGround = document.createElement("div");
+generalWrapper.append(modalBackGround);
+
+function buttonAddSavings(target) {
+  target.getButton().onclick = function () {
+    modalBackGround.classList.add("modal-background");
+
+    // Тело модального окна по нажатию кнопки
+    modalBackGround.innerHTML = `
+    <div class="modal-window">
+    <div class="target_title">
+    <h2 class="target_name">${target.getName()}</h2>
+    <button class="modal-close"></button>
+    </div>
+    <div class="modal-info">
+    <div class="modal_totalsum_info">
+    <p class="info-title">Сумма для накопления:</p>
+    <p class="info-value">${target.getTotalSum()} ₽</p>
+    </div>
+    <div class="modal_duedate_info">
+    <p class="info-title">Дата окончания накопления:</p>
+    <p class="info-value">${target.getDueDate()}</p>
+    </div>
+    </div>
+    <div class="target_progress">
+    <p>Накоплено: <span>${target.getSavedSum()} ₽ из ${target.getTotalSum()} ₽</span></p>
+    <p>До выполнения цели: <span>${target.getDifferenceSum()} ₽</p>
+    </div>
+    </div>
+  </div>`;
+
+    // Кнопка закрытия модального окна
+    const buttonCloseModal = modalBackGround.querySelector(".modal-close");
+    buttonCloseModal.onclick = function () {
+      modalBackGround.classList.remove("modal-background");
+      modalBackGround.innerHTML = "";
+    };
+  };
 }
