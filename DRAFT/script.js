@@ -107,6 +107,18 @@ class Target {
   getButton() {
     return this.button;
   }
+  addSavingsRaw(amount) {
+    this.savedSum+=amount;
+  }
+
+  withdrawSavings(amount) {
+    if (this.savedSum >= amount) {
+      this.savedSum -= amount;
+      return true; 
+    } else {
+      return false;
+    }
+  }
 }
 
 // Массив с целями из Local storage
@@ -169,7 +181,7 @@ let targetsList = [
     priority: "2",
     startDate: today,
     dueDate: new Date("2024-08-18"),
-    savedSum: 300000,
+    savedSum: 500000,
   },
   {
     name: "Компьютер",
@@ -286,6 +298,24 @@ function createTargetCard(target) {
     progressBar.append(progressBarText);
   }
 
+    //Анимация не работает()
+  progressBarInner.addEventListener('transitionend', () => {  
+  if (parseInt(progressBarInner.style.width) === 100) {
+  victoryAnimation();
+  }
+  });
+      
+  function victoryAnimation() {
+  progressBar.style.width = '100%';
+  progressBar.style.backgroundColor = 'blue';
+  let isHidden = false;
+  const intervalId = setInterval(() => {
+  victoryText.style.visibility = isHidden ? 'visible' : 'hidden';
+  isHidden = !isHidden;
+  }, 500);
+  }
+  
+
   // Стучимся к кнопкам в карточках
   target.setButton(targetCard.querySelector(".target_add_savings"));
 }
@@ -317,17 +347,59 @@ function buttonAddSavings(target) {
     </div>
     </div>
     <div class="target_progress">
-    <p>Накоплено: <span>${target.getSavedSum()} ₽ из ${target.getTotalSum()} ₽</span></p>
-    <p>До выполнения цели: <span>${target.getDifferenceSum()} ₽</p>
+    <p>Накоплено: <span class="saved-sum">${target.getSavedSum()}</span></p>
+    <p>До выполнения цели: <span class="difference-sum">${target.getDifferenceSum()} ₽</p>
+    </div>
+    <div class="modal-buttons">
+    <input type="number" class="input-sum" placeholder="Введите сумму, руб">
+    <button class="modal-add-saving">Пополнить</button>
+    <button class="modal-withdraw-savings">Снять</button>
+    <p class="error-display"></p>
     </div>
     </div>
   </div>`;
 
+
+  function updateTargetInfo(target) {
+    // Находим элементы на странице, которые нужно обновить
+  const savedSumElement = modalBackGround.querySelector(".saved-sum");
+  const differenceSumElement = modalBackGround.querySelector(".difference-sum");
+  savedSumElement.textContent = target.getSavedSum() + " ₽";
+  differenceSumElement.textContent = target.getDifferenceSum() + " ₽";
+  }
+
+  //Пополнение средств
+  const buttonAddSavings = modalBackGround.querySelector(".modal-add-saving");
+  buttonAddSavings.onclick = function () {
+  const inputSum = modalBackGround.querySelector(".input-sum");
+  const savingAmount = parseInt(inputSum.value);
+  target.addSavingsRaw(savingAmount);
+  updateTargetInfo(target); 
+};
+
+  //Снятие средств
+  
+  const buttonWithdrawSavings = modalBackGround.querySelector(".modal-withdraw-savings");
+  buttonWithdrawSavings.onclick = function () {
+  const inputSum = modalBackGround.querySelector(".input-sum");
+  const withdrawalAmount = parseInt(inputSum.value); 
+  const errorDisplay = modalBackGround.querySelector(".error-display");// Получаем введенную сумму
+
+  if (target.withdrawSavings(withdrawalAmount)) {
+    updateTargetInfo(target); 
+    errorDisplay.textContent = "";
+  } else {
+    errorDisplay.textContent = "Недостаточно средств для снятия";
+
+  }
+  };
+
+
     // Кнопка закрытия модального окна
-    const buttonCloseModal = modalBackGround.querySelector(".modal-close");
-    buttonCloseModal.onclick = function () {
-      modalBackGround.classList.remove("modal-background");
-      modalBackGround.innerHTML = "";
+  const buttonCloseModal = modalBackGround.querySelector(".modal-close");
+  buttonCloseModal.onclick = function () {
+  modalBackGround.classList.remove("modal-background");
+  modalBackGround.innerHTML = "";
     };
   };
 }
