@@ -5,7 +5,7 @@ body {
   background-color: #ededed;
   font-family: "Inter", sans-serif;
 }
-main {
+.target_page_wrapper {
   display: flex;
   flex-direction: column;
 }
@@ -26,11 +26,11 @@ main {
 }
 
 #logoImg {
-  width: 3.125rem;
+  width: 4rem;
 }
 #userImg {
-  height: 3.125rem;
-  width: 3.125rem;
+  height: 4rem;
+  width: 4rem;
   border-radius: 0.625rem;
 }
 .header_wrapper {
@@ -55,7 +55,7 @@ main {
 #header_top button,
 #header_middle button,
 #header_bottom button {
-  margin-top: 0.5rem;
+  margin-top: 0.1rem;
 }
 
 .target_add_button {
@@ -69,8 +69,8 @@ main {
 .setting_page,
 .help_page,
 .logout_page {
-  height: 3.125rem;
-  width: 3.125rem;
+  height: 4rem;
+  width: 4rem;
   background-repeat: no-repeat;
   background-size: contain;
   background-color: transparent;
@@ -112,15 +112,11 @@ main {
 }
 @media screen and (max-width: 1080px) {
   .target_wrapper {
-    display: grid;
-    grid-gap: 1rem;
     grid-template-columns: repeat(auto-fit, 40%);
   }
 }
 @media screen and (max-width: 870px) {
   .target_wrapper {
-    display: grid;
-    grid-gap: 1rem;
     grid-template-columns: repeat(auto-fit, 90%);
   }
 }
@@ -129,6 +125,8 @@ main {
   background-color: white;
   border-radius: 0.625rem;
   padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .target_card h2 {
@@ -148,6 +146,7 @@ main {
   background-size: contain;
   background-color: transparent;
   border: none;
+  cursor: pointer;
 }
 
 .target_img {
@@ -224,4 +223,42 @@ main {
   color: #292929;
   position: relative;
   top: 15%;
+}
+
+/* Стили для модального окна */
+.modal-background {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-window {
+  background-color: #fff;
+  margin: 10rem auto;
+  padding: 1.5rem;
+  width: 30%;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.625rem;
+}
+
+.modal-close {
+  cursor: pointer;
+  height: 2rem;
+  width: 2rem;
+  background-image: url("assets/svg/target_add_savings_close.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: transparent;
+  border: none;
+}
+
+.modal-info {
+  display: flex;
+  justify-content: space-between;
 }
