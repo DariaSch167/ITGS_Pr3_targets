@@ -262,3 +262,7 @@ body {
   display: flex;
   justify-content: space-between;
 }
+
+.target_victory {
+  width: 5rem;
+}
