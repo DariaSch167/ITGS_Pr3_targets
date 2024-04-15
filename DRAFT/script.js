@@ -107,6 +107,14 @@ class Target {
   getButton() {
     return this.button;
   }
+    additionalSavings(amount) {
+    if (amount <= this.totalSum - this.savedSum) {
+      this.savedSum += amount;
+      return true;
+    } else {
+      return false;
+    }
+  }
   withdrawSavings(amount) {
     if (this.savedSum >= amount) {
       this.savedSum -= amount;
@@ -367,29 +375,31 @@ function buttonAddSavings(target) {
       if (savingAmount < 0) {
         errorDisplay.textContent = "Сумма операции не может быть отрицательной";
       } else {
-        if (savingAmount > target.getDifferenceSum()) {
-          errorDisplay.textContent = "Превышение итоговой суммы цели";
-        } else {
-          target.addSavings(savingAmount);
+        if (target.additionalSavings(savingAmount)) {
           updateTargetInfo(target);
+        } else {
+          errorDisplay.textContent = "Превышение итоговой суммы цели";
         }
       }
     };
 
-  //Снятие средств
-
-  const buttonWithdrawSavings = modalBackGround.querySelector(".modal-withdraw-savings");
-  buttonWithdrawSavings.onclick = function () {
-  const withdrawalAmount = Number(inputSum.value); 
-
-  if (target.withdrawSavings(withdrawalAmount)) {
-    updateTargetInfo(target); 
-    errorDisplay.textContent = "";
-  } else {
-    errorDisplay.textContent = "Недостаточно средств для снятия";
-
-  }
-  };
+    //Снятие средств
+    const buttonWithdrawSavings = modalBackGround.querySelector(
+      ".modal-withdraw-savings"
+    );
+    buttonWithdrawSavings.onclick = function () {
+      errorDisplay.textContent = "";
+      const withdrawalAmount = Number(inputSum.value);
+      if (withdrawalAmount < 0) {
+        errorDisplay.textContent = "Сумма операции не может быть отрицательной";
+      } else {
+        if (target.withdrawSavings(withdrawalAmount)) {
+          updateTargetInfo(target);
+        } else {
+          errorDisplay.textContent = "Недостаточно средств для снятия";
+        }
+      }
+    };
 
     // Кнопка закрытия модального окна
     const buttonCloseModal = modalBackGround.querySelector(".modal-close");
