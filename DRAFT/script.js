@@ -107,14 +107,10 @@ class Target {
   getButton() {
     return this.button;
   }
-  addSavingsRaw(amount) {
-    this.savedSum+=amount;
-  }
-
   withdrawSavings(amount) {
     if (this.savedSum >= amount) {
       this.savedSum -= amount;
-      return true; 
+      return true;
     } else {
       return false;
     }
@@ -274,9 +270,9 @@ function createTargetCard(target) {
       ? "inner-start"
       : target.getProgressNum() >= 20 && target.getProgressNum() < 79
       ? "inner-middle"
-      : target.getProgressNum() >= 80
+      : target.getProgressNum() >= 80 && target.getProgressNum() < 100
       ? "inner-finish"
-      : "";
+      : "inner-victory";
   progressBarInner.classList.add(progressColor);
 
   // Решение стилизации маленького значения процента
@@ -298,23 +294,15 @@ function createTargetCard(target) {
     progressBar.append(progressBarText);
   }
 
-    //Анимация не работает()
-  progressBarInner.addEventListener('transitionend', () => {  
-  if (parseInt(progressBarInner.style.width) === 100) {
-  victoryAnimation();
+  //Анимация не работает() - сделали пока стилизацию
+  if (target.getProgressNum() === 100) {
+    const targetInfo = targetCard.querySelector(".target_info");
+    targetInfo.innerHTML = "";
+    targetInfo.innerHTML = `
+    <img class="target_victory" src="./assets/svg/target_victory.svg" alt="Цель выполнена">
+    <p class="info-value">Цель выполнена</p>
+    `;
   }
-  });
-      
-  function victoryAnimation() {
-  progressBar.style.width = '100%';
-  progressBar.style.backgroundColor = 'blue';
-  let isHidden = false;
-  const intervalId = setInterval(() => {
-  victoryText.style.visibility = isHidden ? 'visible' : 'hidden';
-  isHidden = !isHidden;
-  }, 500);
-  }
-  
 
   // Стучимся к кнопкам в карточках
   target.setButton(targetCard.querySelector(".target_add_savings"));
@@ -347,8 +335,8 @@ function buttonAddSavings(target) {
     </div>
     </div>
     <div class="target_progress">
-    <p>Накоплено: <span class="saved-sum">${target.getSavedSum()}</span></p>
-    <p>До выполнения цели: <span class="difference-sum">${target.getDifferenceSum()} ₽</p>
+    <p>Накоплено: <span class="saved-sum">${target.getSavedSum()} ₽</span></p>
+    <p>До выполнения цели: <span class="difference-sum">${target.getDifferenceSum()} ₽</span></p>
     </div>
     <div class="modal-buttons">
     <input type="number" class="input-sum" placeholder="Введите сумму, руб">
@@ -359,31 +347,40 @@ function buttonAddSavings(target) {
     </div>
   </div>`;
 
+    function updateTargetInfo(target) {
+      // Находим элементы на странице, которые нужно обновить
+      const savedSumElement = modalBackGround.querySelector(".saved-sum");
+      const differenceSumElement =
+        modalBackGround.querySelector(".difference-sum");
+      savedSumElement.textContent = target.getSavedSum() + " ₽";
+      differenceSumElement.textContent = target.getDifferenceSum() + " ₽";
+    }
 
-  function updateTargetInfo(target) {
-    // Находим элементы на странице, которые нужно обновить
-  const savedSumElement = modalBackGround.querySelector(".saved-sum");
-  const differenceSumElement = modalBackGround.querySelector(".difference-sum");
-  savedSumElement.textContent = target.getSavedSum() + " ₽";
-  differenceSumElement.textContent = target.getDifferenceSum() + " ₽";
-  }
+    //Пополнение средств
+    const errorDisplay = modalBackGround.querySelector(".error-display");
+    const buttonAddSavings = modalBackGround.querySelector(".modal-add-saving");
+    const inputSum = modalBackGround.querySelector(".input-sum");
 
-  //Пополнение средств
-  const buttonAddSavings = modalBackGround.querySelector(".modal-add-saving");
-  buttonAddSavings.onclick = function () {
-  const inputSum = modalBackGround.querySelector(".input-sum");
-  const savingAmount = parseInt(inputSum.value);
-  target.addSavingsRaw(savingAmount);
-  updateTargetInfo(target); 
-};
+    buttonAddSavings.onclick = function () {
+      errorDisplay.textContent = "";
+      const savingAmount = Number(inputSum.value);
+      if (savingAmount < 0) {
+        errorDisplay.textContent = "Сумма операции не может быть отрицательной";
+      } else {
+        if (savingAmount > target.getDifferenceSum()) {
+          errorDisplay.textContent = "Превышение итоговой суммы цели";
+        } else {
+          target.addSavings(savingAmount);
+          updateTargetInfo(target);
+        }
+      }
+    };
 
   //Снятие средств
-  
+
   const buttonWithdrawSavings = modalBackGround.querySelector(".modal-withdraw-savings");
   buttonWithdrawSavings.onclick = function () {
-  const inputSum = modalBackGround.querySelector(".input-sum");
-  const withdrawalAmount = parseInt(inputSum.value); 
-  const errorDisplay = modalBackGround.querySelector(".error-display");// Получаем введенную сумму
+  const withdrawalAmount = Number(inputSum.value); 
 
   if (target.withdrawSavings(withdrawalAmount)) {
     updateTargetInfo(target); 
@@ -394,12 +391,12 @@ function buttonAddSavings(target) {
   }
   };
 
-
     // Кнопка закрытия модального окна
-  const buttonCloseModal = modalBackGround.querySelector(".modal-close");
-  buttonCloseModal.onclick = function () {
-  modalBackGround.classList.remove("modal-background");
-  modalBackGround.innerHTML = "";
+    const buttonCloseModal = modalBackGround.querySelector(".modal-close");
+    buttonCloseModal.onclick = function () {
+      modalBackGround.classList.remove("modal-background");
+      modalBackGround.innerHTML = "";
+      location.reload();
     };
   };
 }
