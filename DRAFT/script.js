@@ -124,12 +124,6 @@ class Target {
       return false;
     }
   }
-  updModalSum(sum) {
-    return (this.modalSum = sum);
-  }
-  getModalSum() {
-    return this.modalSum;
-  }
 }
 
 // Массив с целями из Local storage
@@ -414,17 +408,11 @@ function buttonAddSavings(target) {
       }
     };
 
-    // Фиксируем значение модальной суммы
-    function updateModalSum(target) {
-      target.updModalSum(savedSumModal);
-      return console.log(target.getModalSum());
-    }
-
     // Кнопка закрытия модального окна
     buttonCloseModal.onclick = function () {
       modalBackGround.classList.remove("modal-background");
       modalBackGround.innerHTML = "";
-      updateModalSum(target);
+      return console.log(savedSumModal);
     };
   };
 }
