@@ -17,6 +17,7 @@ class Target {
     this.dueDate = dueDate;
     this.savedSum = savedSum;
     this.button;
+    this.modalSum;
   }
 
   getName() {
@@ -123,8 +124,12 @@ class Target {
       return false;
     }
   }
-  updModalSum(sum) {}
-  getModalSum() {}
+  updModalSum(sum) {
+    return (this.modalSum = sum);
+  }
+  getModalSum() {
+    return this.modalSum;
+  }
 }
 
 // Массив с целями из Local storage
@@ -413,7 +418,12 @@ function buttonAddSavings(target) {
     buttonCloseModal.onclick = function () {
       modalBackGround.classList.remove("modal-background");
       modalBackGround.innerHTML = "";
-      return console.log(savedSumModal);
+      updateModalSum(target);
     };
+
+    function updateModalSum(target) {
+      target.updModalSum(savedSumModal);
+      return console.log(target.getModalSum());
+    }
   };
 }
