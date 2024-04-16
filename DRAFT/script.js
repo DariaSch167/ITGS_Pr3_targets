@@ -17,7 +17,6 @@ class Target {
     this.dueDate = dueDate;
     this.savedSum = savedSum;
     this.button;
-    this.modalSum;
   }
 
   getName() {
