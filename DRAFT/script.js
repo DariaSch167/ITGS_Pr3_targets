@@ -414,16 +414,17 @@ function buttonAddSavings(target) {
       }
     };
 
+    // Фиксируем значение модальной суммы
+    function updateModalSum(target) {
+      target.updModalSum(savedSumModal);
+      return console.log(target.getModalSum());
+    }
+
     // Кнопка закрытия модального окна
     buttonCloseModal.onclick = function () {
       modalBackGround.classList.remove("modal-background");
       modalBackGround.innerHTML = "";
       updateModalSum(target);
     };
-
-    function updateModalSum(target) {
-      target.updModalSum(savedSumModal);
-      return console.log(target.getModalSum());
-    }
   };
 }
