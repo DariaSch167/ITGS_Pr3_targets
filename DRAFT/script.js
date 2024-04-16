@@ -86,9 +86,9 @@ class Target {
   getSavedSum() {
     return this.savedSum.toLocaleString("ru-RU");
   }
-  addSavings(addSumm) {
-    return (this.savedSum = this.savedSum + addSumm).toLocaleString("ru-RU");
-  }
+  // addSavings(addSumm) {
+  //   return (this.savedSum = this.savedSum + addSumm).toLocaleString("ru-RU");
+  // }
   getDifferenceSum() {
     return (this.totalSum - this.savedSum).toLocaleString("ru-RU");
   }
@@ -107,7 +107,7 @@ class Target {
   getButton() {
     return this.button;
   }
-    additionalSavings(amount) {
+  additionalSavings(amount) {
     if (amount <= this.totalSum - this.savedSum) {
       this.savedSum += amount;
       return true;
@@ -123,6 +123,8 @@ class Target {
       return false;
     }
   }
+  updModalSum(sum) {}
+  getModalSum() {}
 }
 
 // Массив с целями из Local storage
@@ -324,7 +326,6 @@ generalWrapper.append(modalBackGround);
 function buttonAddSavings(target) {
   target.getButton().onclick = function () {
     modalBackGround.classList.add("modal-background");
-
     // Тело модального окна по нажатию кнопки
     modalBackGround.innerHTML = `
     <div class="modal-window">
@@ -346,29 +347,37 @@ function buttonAddSavings(target) {
     <p>Накоплено: <span class="saved-sum">${target.getSavedSum()} ₽</span></p>
     <p>До выполнения цели: <span class="difference-sum">${target.getDifferenceSum()} ₽</span></p>
     </div>
+    <div class="modal-button-wrapper">
     <div class="modal-buttons">
     <input type="number" class="input-sum" placeholder="Введите сумму, руб">
     <button class="modal-add-saving">Пополнить</button>
     <button class="modal-withdraw-savings">Снять</button>
+    </div>
     <p class="error-display"></p>
     </div>
     </div>
   </div>`;
 
+    //Находим элементы для работы внутри функции
+    const errorDisplay = modalBackGround.querySelector(".error-display");
+    const buttonAddSavings = modalBackGround.querySelector(".modal-add-saving");
+    const buttonWDSavings = modalBackGround.querySelector(
+      ".modal-withdraw-savings"
+    );
+    const buttonCloseModal = modalBackGround.querySelector(".modal-close");
+    const inputSum = modalBackGround.querySelector(".input-sum");
+    const savedSumElement = modalBackGround.querySelector(".saved-sum");
+    const diffSumElement = modalBackGround.querySelector(".difference-sum");
+    let savedSumModal = target.getSavedSum();
+
     function updateTargetInfo(target) {
-      // Находим элементы на странице, которые нужно обновить
-      const savedSumElement = modalBackGround.querySelector(".saved-sum");
-      const differenceSumElement =
-        modalBackGround.querySelector(".difference-sum");
+      // Обновление модального после нажатия кнопок
       savedSumElement.textContent = target.getSavedSum() + " ₽";
-      differenceSumElement.textContent = target.getDifferenceSum() + " ₽";
+      diffSumElement.textContent = target.getDifferenceSum() + " ₽";
+      return (savedSumModal = target.getSavedSum());
     }
 
     //Пополнение средств
-    const errorDisplay = modalBackGround.querySelector(".error-display");
-    const buttonAddSavings = modalBackGround.querySelector(".modal-add-saving");
-    const inputSum = modalBackGround.querySelector(".input-sum");
-
     buttonAddSavings.onclick = function () {
       errorDisplay.textContent = "";
       const savingAmount = Number(inputSum.value);
@@ -377,6 +386,7 @@ function buttonAddSavings(target) {
       } else {
         if (target.additionalSavings(savingAmount)) {
           updateTargetInfo(target);
+          return savedSumModal;
         } else {
           errorDisplay.textContent = "Превышение итоговой суммы цели";
         }
@@ -384,10 +394,7 @@ function buttonAddSavings(target) {
     };
 
     //Снятие средств
-    const buttonWithdrawSavings = modalBackGround.querySelector(
-      ".modal-withdraw-savings"
-    );
-    buttonWithdrawSavings.onclick = function () {
+    buttonWDSavings.onclick = function () {
       errorDisplay.textContent = "";
       const withdrawalAmount = Number(inputSum.value);
       if (withdrawalAmount < 0) {
@@ -395,6 +402,7 @@ function buttonAddSavings(target) {
       } else {
         if (target.withdrawSavings(withdrawalAmount)) {
           updateTargetInfo(target);
+          return savedSumModal;
         } else {
           errorDisplay.textContent = "Недостаточно средств для снятия";
         }
@@ -402,11 +410,10 @@ function buttonAddSavings(target) {
     };
 
     // Кнопка закрытия модального окна
-    const buttonCloseModal = modalBackGround.querySelector(".modal-close");
     buttonCloseModal.onclick = function () {
       modalBackGround.classList.remove("modal-background");
       modalBackGround.innerHTML = "";
-      location.reload();
+      return console.log(savedSumModal);
     };
   };
 }
