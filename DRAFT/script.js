@@ -45,7 +45,7 @@ class Target {
     return this.category;
   }
   getTotalSum() {
-    return this.totalSum.toLocaleString("ru-RU");
+    return this.totalSum;
   }
   getPriority() {
     return this.priority;
@@ -84,11 +84,11 @@ class Target {
     return difference + " " + ending;
   }
   getSavedSum() {
-    return this.savedSum.toLocaleString("ru-RU");
+    return this.savedSum;
   }
-  // addSavings(addSumm) {
-  //   return (this.savedSum = this.savedSum + addSumm).toLocaleString("ru-RU");
-  // }
+  addSavings(addSumm) {
+    return (this.savedSum = this.savedSum + addSumm);
+  }
   getDifferenceSum() {
     return (this.totalSum - this.savedSum).toLocaleString("ru-RU");
   }
@@ -100,12 +100,6 @@ class Target {
       percent = Math.floor(percent);
     }
     return percent;
-  }
-  setButton(button) {
-    return (this.button = button);
-  }
-  getButton() {
-    return this.button;
   }
   additionalSavings(amount) {
     if (amount <= this.totalSum - this.savedSum) {
@@ -217,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         target.savedSum
       );
       createTargetCard(targetElement);
-      buttonAddSavings(targetElement);
+      // buttonAddSavings(targetElement);
     });
   }
 });
@@ -257,12 +251,18 @@ function createTargetCard(target) {
   </div>
   <div class="target_sum-rest">
   <p class="info-title">Осталось собрать:</p>
-  <p class="info-value">${target.getDifferenceSum()} ₽</p>
+  <p class="info-value target_card_diff">${target
+    .getDifferenceSum()
+    .toLocaleString("ru-RU")} ₽</p>
   </div>
   </div>
   </div>
   <div class="target_progress">
-  <p>Прогресс цели: <span>${target.getSavedSum()} ₽ из ${target.getTotalSum()} ₽</span></p>
+  <p>Прогресс цели: <span class="target_card_saved">${target
+    .getSavedSum()
+    .toLocaleString("ru-RU")} ₽ из ${target
+    .getTotalSum()
+    .toLocaleString("ru-RU")} ₽</span></p>
   <div class="progress-bar">
   <div class="progress-bar-inner"></div>
   </div>
@@ -271,7 +271,7 @@ function createTargetCard(target) {
   // Создание прогресс-бара
   const progressBar = targetCard.querySelector(".progress-bar");
   const progressBarInner = targetCard.querySelector(".progress-bar-inner");
-
+  let progressBarText = document.createElement("div");
   // Определение цвета прогресс-бара
   let progressColor =
     target.getProgressNum() < 19
@@ -292,7 +292,6 @@ function createTargetCard(target) {
   }
 
   // Определение местоположения значения процента
-  let progressBarText = document.createElement("div");
   progressBarText.textContent = target.getProgressNum() + "%";
   progressBarText.classList.add("progress_bar_text");
 
@@ -302,7 +301,7 @@ function createTargetCard(target) {
     progressBar.append(progressBarText);
   }
 
-  //Анимация не работает() - сделали пока стилизацию
+  //Анимация не заработала - сделали пока стилизацию
   if (target.getProgressNum() === 100) {
     const targetInfo = targetCard.querySelector(".target_info");
     targetInfo.innerHTML = "";
@@ -312,17 +311,14 @@ function createTargetCard(target) {
     `;
   }
 
-  // Стучимся к кнопкам в карточках
-  target.setButton(targetCard.querySelector(".target_add_savings"));
-}
+  // Создание модального окна
+  const differenceSumText = targetCard.querySelector(".target_card_diff");
+  const savedSumText = targetCard.querySelector(".target_card_saved");
+  const generalWrapper = document.querySelector(".general_wrapper");
+  const modalBackGround = document.createElement("div");
+  generalWrapper.append(modalBackGround);
 
-// Создание модального окна
-const generalWrapper = document.querySelector(".general_wrapper");
-const modalBackGround = document.createElement("div");
-generalWrapper.append(modalBackGround);
-
-function buttonAddSavings(target) {
-  target.getButton().onclick = function () {
+  targetCard.querySelector(".target_add_savings").onclick = function () {
     modalBackGround.classList.add("modal-background");
     // Тело модального окна по нажатию кнопки
     modalBackGround.innerHTML = `
@@ -334,7 +330,7 @@ function buttonAddSavings(target) {
     <div class="modal-info">
     <div class="modal_totalsum_info">
     <p class="info-title">Сумма для накопления:</p>
-    <p class="info-value">${target.getTotalSum()} ₽</p>
+    <p class="info-value">${target.getTotalSum().toLocaleString("ru-RU")} ₽</p>
     </div>
     <div class="modal_duedate_info">
     <p class="info-title">Дата окончания накопления:</p>
@@ -342,8 +338,12 @@ function buttonAddSavings(target) {
     </div>
     </div>
     <div class="target_progress">
-    <p>Накоплено: <span class="saved-sum">${target.getSavedSum()} ₽</span></p>
-    <p>До выполнения цели: <span class="difference-sum">${target.getDifferenceSum()} ₽</span></p>
+    <p>Накоплено: <span class="saved-sum">${target
+      .getSavedSum()
+      .toLocaleString("ru-RU")} ₽</span></p>
+    <p>До выполнения цели: <span class="difference-sum">${target
+      .getDifferenceSum()
+      .toLocaleString("ru-RU")} ₽</span></p>
     </div>
     <div class="modal-button-wrapper">
     <div class="modal-buttons">
@@ -366,13 +366,26 @@ function buttonAddSavings(target) {
     const inputSum = modalBackGround.querySelector(".input-sum");
     const savedSumElement = modalBackGround.querySelector(".saved-sum");
     const diffSumElement = modalBackGround.querySelector(".difference-sum");
-    let savedSumModal = target.getSavedSum();
+    let savedSumModal = [
+      target.getSavedSum(),
+      target.getDifferenceSum(),
+      target.getTotalSum(),
+      target.getProgressNum(),
+    ];
 
     function updateTargetInfo(target) {
       // Обновление модального после нажатия кнопок
-      savedSumElement.textContent = target.getSavedSum() + " ₽";
-      diffSumElement.textContent = target.getDifferenceSum() + " ₽";
-      return (savedSumModal = target.getSavedSum());
+      inputSum.value = "";
+      savedSumElement.textContent =
+        target.getSavedSum().toLocaleString("ru-RU") + " ₽";
+      diffSumElement.textContent =
+        target.getDifferenceSum().toLocaleString("ru-RU") + " ₽";
+      return (savedSumModal = [
+        target.getSavedSum(),
+        target.getDifferenceSum(),
+        target.getTotalSum(),
+        target.getProgressNum(),
+      ]);
     }
 
     //Пополнение средств
@@ -408,10 +421,41 @@ function buttonAddSavings(target) {
     };
 
     // Кнопка закрытия модального окна
-    buttonCloseModal.onclick = function () {
+    buttonCloseModal.onclick = function (target) {
       modalBackGround.classList.remove("modal-background");
       modalBackGround.innerHTML = "";
-      return console.log(savedSumModal);
+      savedSumText.textContent = `${savedSumModal[0].toLocaleString(
+        "ru-RU"
+      )} ₽ из ${savedSumModal[2].toLocaleString("ru-RU")} ₽`;
+      differenceSumText.textContent =
+        savedSumModal[1].toLocaleString("ru-RU") + " ₽";
+      // Будет повтор, подумать над оптимизацией:
+      // Кусок раз:
+      let progressColorTwo =
+        savedSumModal[3] < 19
+          ? "inner-start"
+          : savedSumModal[3] >= 20 && savedSumModal[3] < 79
+          ? "inner-middle"
+          : savedSumModal[3] >= 80 && savedSumModal[3] < 100
+          ? "inner-finish"
+          : "inner-victory";
+      progressBarInner.classList.remove(progressColor);
+      progressBarInner.classList.add(progressColorTwo);
+      // Кусок два:
+      if (savedSumModal[3] > 5) {
+        progressBarInner.style.width = savedSumModal[3] + "%";
+      } else {
+        progressBarInner.style.width = "4%";
+        progressBarInner.style.borderRadius = "0.625rem 0 0 0.625rem";
+      }
+      // Кусок три:
+      progressBarText.textContent = savedSumModal[3] + " %";
+
+      if (savedSumModal[3] >= 20) {
+        progressBarInner.append(progressBarText);
+      } else {
+        progressBar.append(progressBarText);
+      }
     };
   };
 }
