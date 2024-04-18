@@ -117,10 +117,6 @@ class Target {
   }
 }
 
-// Массив с целями из Local storage
-// let targetsListJson = localStorage.getItem("savedGoals");
-// let targetsList = targetsListJson ? JSON.parse(targetsListJson) : [];
-
 // Проверочный пример массива объектов
 let today = new Date();
 
@@ -189,6 +185,12 @@ let targetsList = [
     savedSum: 18000,
   },
 ];
+
+localStorage.setItem("goals", JSON.stringify(targetsList));
+
+// Массив с целями из Local storage
+let targetsListJson = localStorage.getItem("goals");
+targetsList = targetsListJson ? JSON.parse(targetsListJson) : [];
 
 // Прописываем стиль по умолчанию кнопок бокового меню
 const targetPageWrapper = document.querySelector(".target_page_wrapper");
@@ -412,6 +414,7 @@ function createTargetCard(target) {
       target.getDifferenceSum(),
       target.getTotalSum(),
       target.getProgressNum(),
+      target.getName(),
     ];
 
     // Проверка состояния кнопок внутри модального окна
@@ -460,6 +463,7 @@ function createTargetCard(target) {
         target.getDifferenceSum(),
         target.getTotalSum(),
         target.getProgressNum(),
+        target.getName(),
       ]);
     }
 
@@ -541,6 +545,19 @@ function createTargetCard(target) {
     <p class="info-value">Цель выполнена</p>
     `;
       }
+      // Обновление данных в LocalStorage
+      const listElement = targetsList.find(
+        (el) => el.name === savedSumModal[4]
+      );
+      listElement.savedSum = savedSumModal[0];
+      console.log(listElement.savedSum);
+
+      // const listElement = targetsList.find(
+      //   (el) => el.goal === savedSumModal[4]
+      // );
+      // listElement.currentAmount = savedSumModal[0];
+      // console.log(listElement.savedSum);
+      localStorage.setItem("goals", JSON.stringify(targetsList));
     };
   };
 }
