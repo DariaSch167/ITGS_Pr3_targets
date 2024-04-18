@@ -16,9 +16,7 @@ class Target {
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.savedSum = savedSum;
-    this.button;
   }
-
   getName() {
     return this.name;
   }
@@ -120,7 +118,7 @@ class Target {
 }
 
 // Массив с целями из Local storage
-// let targetsListJson = localStorage.getItem("targetsList");
+// let targetsListJson = localStorage.getItem("savedGoals");
 // let targetsList = targetsListJson ? JSON.parse(targetsListJson) : [];
 
 // Проверочный пример массива объектов
@@ -192,9 +190,33 @@ let targetsList = [
   },
 ];
 
+// Прописываем стиль по умолчанию кнопок бокового меню
+const targetPageWrapper = document.querySelector(".target_page_wrapper");
+const targetPage = document.getElementById("target_page");
+const targetAddButton = document.getElementById("target_add_button");
+
+targetAddButton.addEventListener("click", changePage);
+
+function changePage() {
+  targetPage.classList.remove("active_menu_button");
+  targetPage.style.backgroundImage = "url(assets/svg/menu_middle2.svg)";
+
+  targetAddButton.classList.add("active_menu_button");
+  targetAddButton.style.backgroundImage =
+    "url(assets/svg/menu_top1_active.svg)";
+
+  targetPageWrapper.classList.add("hidden");
+}
+
 // Для отображения целей из Local storage при загрузке страницы
 // Елементы массива преобразуется в объекты, из них создаются карточки
 document.addEventListener("DOMContentLoaded", () => {
+  targetPage.classList.add("active_menu_button");
+  targetPage.style.backgroundImage = "url(assets/svg/menu_middle2_active.svg)";
+
+  targetAddButton.style.backgroundImage = "url(assets/svg/menu_top1.svg)";
+  targetAddButton.classList.remove("active_menu_button");
+
   emptyError.textContent = "";
   if (targetsList.length === 0) {
     emptyError.textContent = "Добавьте первую цель";
@@ -202,6 +224,13 @@ document.addEventListener("DOMContentLoaded", () => {
     sortTargetList();
     targetsList.forEach(function (target) {
       let targetElement = new Target(
+        // target.goal,
+        // target.category,
+        // target.amount,
+        // target.priority,
+        // target.creationDate,
+        // target.endDate,
+        // target.currentAmount
         target.name,
         target.category,
         target.sum,
@@ -211,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
         target.savedSum
       );
       createTargetCard(targetElement);
-      // buttonAddSavings(targetElement);
     });
   }
 });
@@ -268,6 +296,12 @@ function createTargetCard(target) {
   </div>
   </div>`;
 
+  // Создание подсказки
+  const buttonTargetAddSavings = targetCard.querySelector(
+    ".target_add_savings"
+  );
+  buttonTargetAddSavings.title = "Нажмите для пополнения или снятия";
+
   // Создание прогресс-бара
   const progressBar = targetCard.querySelector(".progress-bar");
   const progressBarInner = targetCard.querySelector(".progress-bar-inner");
@@ -275,16 +309,16 @@ function createTargetCard(target) {
   // Определение цвета прогресс-бара
   let progressColor =
     target.getProgressNum() < 19
-      ? "inner-start"
+      ? "#df2216"
       : target.getProgressNum() >= 20 && target.getProgressNum() < 79
-      ? "inner-middle"
+      ? "#b6cc2d"
       : target.getProgressNum() >= 80 && target.getProgressNum() < 100
-      ? "inner-finish"
-      : "inner-victory";
-  progressBarInner.classList.add(progressColor);
+      ? "#50db3a"
+      : "#009fdf";
+  progressBarInner.style.background = progressColor;
 
   // Решение стилизации маленького значения процента
-  if (target.getProgressNum() > 5) {
+  if (target.getProgressNum() > 5 || target.getProgressNum() === 0) {
     progressBarInner.style.width = target.getProgressNum() + "%";
   } else {
     progressBarInner.style.width = "4%";
@@ -302,10 +336,15 @@ function createTargetCard(target) {
   }
 
   //Анимация не заработала - сделали пока стилизацию
+  const targetInfo = targetCard.querySelector(".target_info");
+  const target_description = targetCard.querySelector(".target_description");
+
+  const targetInfoVictory = document.createElement("div");
+  target_description.append(targetInfoVictory);
+
   if (target.getProgressNum() === 100) {
-    const targetInfo = targetCard.querySelector(".target_info");
-    targetInfo.innerHTML = "";
-    targetInfo.innerHTML = `
+    targetInfo.classList.add("hidden");
+    targetInfoVictory.innerHTML = `
     <img class="target_victory" src="./assets/svg/target_victory.svg" alt="Цель выполнена">
     <p class="info-value">Цель выполнена</p>
     `;
@@ -363,6 +402,8 @@ function createTargetCard(target) {
       ".modal-withdraw-savings"
     );
     const buttonCloseModal = modalBackGround.querySelector(".modal-close");
+    buttonCloseModal.style.backgroundImage =
+      "url(assets/svg/target_add_savings_close.svg)";
     const inputSum = modalBackGround.querySelector(".input-sum");
     const savedSumElement = modalBackGround.querySelector(".saved-sum");
     const diffSumElement = modalBackGround.querySelector(".difference-sum");
@@ -373,6 +414,20 @@ function createTargetCard(target) {
       target.getProgressNum(),
     ];
 
+    // Проверка состояния кнопок внутри модального окна
+    if (target.getTotalSum() === target.getSavedSum()) {
+      buttonAddSavings.disabled = true;
+      buttonWDSavings.disabled = false;
+    } else {
+      if (target.getSavedSum() === 0) {
+        buttonWDSavings.disabled = true;
+        buttonAddSavings.disabled = false;
+      } else {
+        buttonAddSavings.disabled = false;
+        buttonWDSavings.disabled = false;
+      }
+    }
+
     function updateTargetInfo(target) {
       // Обновление модального после нажатия кнопок
       inputSum.value = "";
@@ -380,6 +435,26 @@ function createTargetCard(target) {
         target.getSavedSum().toLocaleString("ru-RU") + " ₽";
       diffSumElement.textContent =
         target.getDifferenceSum().toLocaleString("ru-RU") + " ₽";
+
+      buttonCloseModal.style.backgroundImage =
+        "url(assets/svg/target_add_savings_save.svg)";
+
+      // Проверка состояния кнопок внутри модального окна
+      if (target.getTotalSum() === target.getSavedSum()) {
+        buttonAddSavings.disabled = true;
+        buttonWDSavings.disabled = false;
+      } else {
+        if (target.getSavedSum() === 0) {
+          buttonWDSavings.disabled = true;
+          buttonAddSavings.disabled = false;
+        } else {
+          buttonAddSavings.disabled = false;
+          buttonWDSavings.disabled = false;
+        }
+      }
+      // Обновление блоков, если до этого было 100%
+      targetInfo.classList.remove("hidden");
+      targetInfoVictory.innerHTML = "";
       return (savedSumModal = [
         target.getSavedSum(),
         target.getDifferenceSum(),
@@ -433,17 +508,18 @@ function createTargetCard(target) {
       // Кусок раз:
       let progressColorTwo =
         savedSumModal[3] < 19
-          ? "inner-start"
+          ? "#df2216"
           : savedSumModal[3] >= 20 && savedSumModal[3] < 79
-          ? "inner-middle"
+          ? "#b6cc2d"
           : savedSumModal[3] >= 80 && savedSumModal[3] < 100
-          ? "inner-finish"
-          : "inner-victory";
-      progressBarInner.classList.remove(progressColor);
-      progressBarInner.classList.add(progressColorTwo);
+          ? "#50db3a"
+          : "#009fdf";
+      progressBarInner.style.background = progressColorTwo;
+
       // Кусок два:
-      if (savedSumModal[3] > 5) {
+      if (savedSumModal[3] > 5 || savedSumModal[3] === 0) {
         progressBarInner.style.width = savedSumModal[3] + "%";
+        progressBarInner.style.borderRadius = "0.625rem";
       } else {
         progressBarInner.style.width = "4%";
         progressBarInner.style.borderRadius = "0.625rem 0 0 0.625rem";
@@ -455,6 +531,15 @@ function createTargetCard(target) {
         progressBarInner.append(progressBarText);
       } else {
         progressBar.append(progressBarText);
+      }
+
+      // Кусок четыре - 100%
+      if (savedSumModal[3] === 100) {
+        targetInfo.classList.add("hidden");
+        targetInfoVictory.innerHTML = `
+    <img class="target_victory" src="./assets/svg/target_victory.svg" alt="Цель выполнена">
+    <p class="info-value">Цель выполнена</p>
+    `;
       }
     };
   };
