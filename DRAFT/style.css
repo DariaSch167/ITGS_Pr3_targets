@@ -14,6 +14,7 @@ body {
   grid-template-columns: 10% 90%;
   height: 100vh;
 }
+
 .target_wrapper {
   margin: 1rem;
 }
@@ -55,12 +56,12 @@ body {
 #header_top button,
 #header_middle button,
 #header_bottom button {
-  margin-top: 0.1rem;
+  margin-top: 0.3rem;
 }
 
 .target_add_button {
-  background-image: url("assets/svg/menu_top1.svg");
   background-size: contain;
+  cursor: pointer;
 }
 
 .target_add_button,
@@ -75,6 +76,7 @@ body {
   background-size: contain;
   background-color: transparent;
   border: none;
+  cursor: pointer;
 }
 
 .active_menu_button {
@@ -85,9 +87,9 @@ body {
 .home_page {
   background-image: url("assets/svg/menu_middle1.svg");
 }
-.target_page {
+/* .target_page {
   background-image: url("assets/svg/menu_middle2.svg");
-}
+} */
 .setting_page {
   background-image: url("assets/svg/menu_middle3.svg");
 }
@@ -165,6 +167,10 @@ body {
   flex-direction: column;
   justify-content: space-evenly;
 }
+.hidden {
+  display: none;
+}
+
 .info-title {
   color: #292929;
   font-size: 0.75rem;
@@ -219,6 +225,9 @@ body {
 .inner-finish {
   background-color: #50db3a;
 }
+.inner-victory {
+  background-color: #009fdf;
+}
 .progress_bar_text {
   color: #292929;
   position: relative;
@@ -251,7 +260,6 @@ body {
   cursor: pointer;
   height: 2rem;
   width: 2rem;
-  background-image: url("assets/svg/target_add_savings_close.svg");
   background-repeat: no-repeat;
   background-size: contain;
   background-color: transparent;
@@ -263,7 +271,53 @@ body {
   justify-content: space-between;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .target_victory {
   width: 5rem;
   margin: 0 auto;
 }
+
+.modal-add-saving,
+.modal-withdraw-savings {
+  margin-top: 1.5rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.625rem;
+  background-color: white;
+  color: #009fdf;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 0.125rem solid #009fdf;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.modal-add-saving:hover,
+.modal-withdraw-savings:hover {
+  background-color: #009fdf;
+  color: white;
+}
+
+.modal-add-saving:disabled,
+.modal-withdraw-savings:disabled {
+  border: 0.0625rem solid #ccc;
+  background-color: #ededed;
+  color: #ababab;
+}
+
+.input-sum {
+  background-color: #ededed;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  margin-top: 0.125rem;
+  display: inline-block;
+  border: 0.0625rem solid #ccc;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+}
+
